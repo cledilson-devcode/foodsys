@@ -2,6 +2,7 @@ package com.cledilsondevcode.foodsys.infrastructure.repository;
 
 import com.cledilsondevcode.foodsys.domain.repository.CozinhaRepository;
 import com.cledilsondevcode.foodsys.domain.model.Cozinha;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +37,13 @@ public class CozinhaRepositoryImpl implements CozinhaRepository {
 
     @Transactional
     @Override
-    public void remover(Cozinha cozinha){
-        cozinha = buscar(cozinha.getId());
+    public void remover(Long cozinhaId){
+        Cozinha cozinha = buscar(cozinhaId);
+
+        if (cozinha == null){
+            throw new EmptyResultDataAccessException(1);
+        }
+
         manager.remove(cozinha);
     }
 }
