@@ -5,11 +5,13 @@ import com.cledilsondevcode.foodsys.domain.exception.EntidadeNaoEncontradaExcept
 import com.cledilsondevcode.foodsys.domain.model.Restaurante;
 import com.cledilsondevcode.foodsys.domain.service.CadastroRestauranteService;
 import org.apache.catalina.LifecycleState;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.PublicKey;
 import java.util.List;
 
 /**
@@ -66,6 +68,31 @@ public class RestauranteController {
         }catch (EntidadeNaoEncontradaException e){
             return ResponseEntity.badRequest().body(e.getMessage());
 
+        }
+
+    }
+
+    /**
+     * Atualizar um restaurante existente com base no ID e dados fornecidos
+     *
+     * @param restauranteId É o ID do restaurante a ser atualizado.
+     * @param restaurante São os dados do restaurante a serem atualizados
+     * @return ResponseEntity contendo o restaurante atualizado, ou staus 400 para uma informação inexistente como o ID da cozinha ,ou status 404 se o restaurante não for encontrado.
+     */
+    @PutMapping("/{restauranteId}")
+    public ResponseEntity<?> atualizar(@PathVariable Long restauranteId, @RequestBody Restaurante restaurante){
+
+        try {
+            Restaurante restauranteAtual = cadastroRestauranteService.buscar(restauranteId);
+            if (restauranteAtual != null){
+                BeanUtils.copyProperties(restaurante, restauranteAtual, "id");
+                restauranteAtual = cadastroRestauranteService.salvar(restauranteAtual);
+                return ResponseEntity.ok(restauranteAtual);
+
+            }
+            return ResponseEntity.notFound().build();
+        }catch (EntidadeNaoEncontradaException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
 
     }
