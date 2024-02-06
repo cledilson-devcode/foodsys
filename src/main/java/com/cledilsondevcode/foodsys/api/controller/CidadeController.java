@@ -14,28 +14,29 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/cidades")
 public class CidadeController {
 
     @Autowired
-    public CadastroCidadeService cadastroCidadeService;
+    private CadastroCidadeService cadastroCidadeService;
 
     @Autowired
-    public CidadeRepository cidadeRepository;
+    private CidadeRepository cidadeRepository;
 
     @GetMapping
     public List<Cidade> listar(){
-        return cidadeRepository.listar();
+        return cidadeRepository.findAll();
     }
 
     @GetMapping("/{cidadeId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Cidade> buscar(@PathVariable Long cidadeId){
-        Cidade cidade = cidadeRepository.buscar(cidadeId);
-        if (cidade != null){
-            return ResponseEntity.ok(cidade);
+        Optional<Cidade> cidade = cidadeRepository.findById(cidadeId);
+        if (cidade.isPresent()){
+            return ResponseEntity.ok(cidade.get());
         }
         return ResponseEntity.notFound().build();
     }
@@ -53,12 +54,12 @@ public class CidadeController {
     @PutMapping("/{cidadeId}")
     public ResponseEntity<?> atuualizar(@PathVariable Long cidadeId, @RequestBody Cidade cidade){
         try{
-            Cidade cidadeAtual = cadastroCidadeService.buscar(cidadeId);
+            Optional<Cidade> cidadeAtual = cidadeRepository.findById(cidadeId);
 
-            if (cidadeAtual != null){
-                BeanUtils.copyProperties(cidade, cidadeAtual, "id");
-                cidadeAtual = cadastroCidadeService.salvar(cidadeAtual);
-                return ResponseEntity.ok(cidadeAtual);
+            if (cidadeAtual.isPresent()){
+                BeanUtils.copyProperties(cidade, cidadeAtual.get(), "id");
+                Cidade cidadeSalva = cadastroCidadeService.salvar(cidadeAtual.get());
+                return ResponseEntity.ok(cidadeSalva);
 
             }
             return ResponseEntity.notFound().build();

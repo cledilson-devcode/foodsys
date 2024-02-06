@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Serviço para operações de intermediação crud com relação ao cadastro de restaurantes
@@ -37,9 +38,7 @@ public class CadastroRestauranteService {
      *
      * @return Uma lista de objetos Restaurante.
      */
-    public List<Restaurante> listar(){
-        return restauranteRepository.listar();
-    }
+
 
     /**
      * Busca um restaurante pelo ID
@@ -47,11 +46,7 @@ public class CadastroRestauranteService {
      * @param restauranteId É o ID do restaurante a ser buscado.
      * @return O restaurante encontrado
      */
-    public Restaurante buscar(Long restauranteId){
 
-            return restauranteRepository.buscar(restauranteId);
-
-    }
 
     /**
      * Salva um restaurante
@@ -62,14 +57,12 @@ public class CadastroRestauranteService {
     public Restaurante salvar(Restaurante restaurante){
 
             Long cozinhaId = restaurante.getCozinha().getId();
-            Cozinha cozinha = cozinhaRepository.buscar(cozinhaId);
+            Cozinha cozinha = cozinhaRepository.findById(cozinhaId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de cozinha com código %d", cozinhaId)));
 
-            if (cozinha == null){
-                throw new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de cozinha com código %d", cozinhaId));
-            }
+
             restaurante.setCozinha(cozinha);
 
-            return restauranteRepository.salvar(restaurante);
+            return restauranteRepository.save(restaurante);
 
     }
 
