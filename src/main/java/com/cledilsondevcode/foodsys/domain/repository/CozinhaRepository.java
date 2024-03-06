@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CozinhaRepository extends JpaRepository<Cozinha, Long> {
 
-    //List<Cozinha> consultarPorNome(String nome);
+    List<Cozinha> findTodasByNomeContaining(String nome);
 
+    boolean existsByNome(String nome);
 
 }
